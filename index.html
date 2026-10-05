@@ -10,17 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Кастомный скроллбар для выпадающего списка */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1e293b; border-radius: 8px; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        /* Убираем стрелочки у числовых инпутов */
+        
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
         
-        /* Стили для ползунка */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -68,7 +66,6 @@
             <div class="relative z-50">
                 <label class="block text-sm font-medium text-slate-400 mb-1.5">Актив</label>
                 
-                <!-- Кнопка открытия дропдауна -->
                 <button id="coinSelectBtn" type="button" class="w-full bg-slate-900 border border-slate-700 hover:border-blue-500/50 rounded-xl px-4 py-3 text-white focus:outline-none transition-all uppercase font-semibold text-left flex justify-between items-center shadow-inner">
                     <div class="flex items-center gap-2">
                         <span id="selectedCoinText" class="text-lg tracking-wide">TRX</span>
@@ -94,7 +91,7 @@
             <div>
                 <div class="flex justify-between items-center mb-1.5">
                     <label class="block text-sm font-medium text-slate-400">Текущая цена (USDT)</label>
-                    <span id="priceStatus" class="flex h-2 w-2 relative">
+                    <span id="priceStatus" class="flex h-2 w-2 relative" title="Автообновление каждые 20 сек">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
@@ -131,7 +128,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-400 mb-2">Цель Take Profit (+%)</label>
+                <label class="block text-sm font-medium text-slate-400 mb-2">Цель TP (+%)</label>
                 <div class="grid grid-cols-5 gap-2" id="tpButtons">
                     <button type="button" data-tp="30" class="tp-btn py-2 rounded-lg border border-slate-600 font-semibold text-sm transition-all text-slate-300 hover:border-emerald-500 hover:text-emerald-400 bg-slate-800">30%</button>
                     <button type="button" data-tp="35" class="tp-btn py-2 rounded-lg border border-slate-600 font-semibold text-sm transition-all text-slate-300 hover:border-emerald-500 hover:text-emerald-400 bg-slate-800">35%</button>
@@ -144,10 +141,10 @@
             <div>
                 <label class="block text-sm font-medium text-slate-400 mb-2">Направление</label>
                 <div class="grid grid-cols-2 gap-3" id="directionButtons">
-                    <button type="button" data-dir="LONG" class="dir-btn py-3 rounded-xl border border-emerald-500 font-bold text-lg transition-all text-white bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                    <button type="button" data-dir="LONG" id="btnLong" class="dir-btn py-3 rounded-xl border border-emerald-500 font-bold text-lg transition-all text-white bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
                         📈 LONG
                     </button>
-                    <button type="button" data-dir="SHORT" class="dir-btn py-3 rounded-xl border border-slate-700 font-bold text-lg transition-all text-slate-400 bg-slate-900 hover:border-rose-500 hover:text-rose-400">
+                    <button type="button" data-dir="SHORT" id="btnShort" class="dir-btn py-3 rounded-xl border border-slate-700 font-bold text-lg transition-all text-slate-400 bg-slate-900 hover:border-rose-500 hover:text-rose-400">
                         📉 SHORT
                     </button>
                 </div>
@@ -157,14 +154,13 @@
                 <label class="block text-sm font-medium text-slate-400 mb-1.5 flex justify-between items-end">
                     <div class="flex items-center gap-3">
                         <span>Готовый сигнал</span>
-                        <!-- Переключатель смайликов -->
                         <label class="inline-flex items-center cursor-pointer" title="Включить/выключить смайлики">
                             <input type="checkbox" id="emojiToggle" class="sr-only peer" checked>
                             <div class="relative w-7 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
                             <span class="ms-1.5 text-[10px] font-semibold tracking-wider text-slate-500 uppercase peer-checked:text-emerald-400 transition-colors">Emoji</span>
                         </label>
                     </div>
-                    <span class="text-xs text-slate-500 font-normal">Стоп-лосс: 15%</span>
+                    <span class="text-xs text-slate-500 font-normal">SL фиксирован: 15%</span>
                 </label>
                 <textarea id="resultText" readonly rows="7" 
                     class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-emerald-400 focus:outline-none font-mono text-sm resize-none shadow-inner leading-relaxed"></textarea>
@@ -207,7 +203,7 @@
         const elDepositSlider = document.getElementById('depositSlider');
         
         const elTpBtns = document.querySelectorAll('.tp-btn');
-        const elDirBtns = document.querySelectorAll('.dir-btn');
+        const elDirBtns = document.querySelectorAll('.dir-btn'); // Кнопки Long / Short
         
         const elResultText = document.getElementById('resultText');
         const elCopyBtn = document.getElementById('copyBtn');
@@ -217,61 +213,52 @@
         // Инициализация
         async function init() {
             await fetchAllCoins();
-            startPriceUpdates(); // Запускаем автообновление (сразу подтянет цену TRX)
+            startPriceUpdates(); // Запускаем автообновление (сразу подтянет цену)
         }
 
-        // Загрузка списка всех монет с Binance
         async function fetchAllCoins() {
             try {
                 const res = await fetch('https://api.binance.com/api/v3/ticker/price');
                 const data = await res.json();
                 
-                // Фильтруем только USDT и убираем суффикс
                 allCoinsData = data
                     .filter(t => t.symbol.endsWith('USDT'))
                     .map(t => t.symbol.replace('USDT', ''))
-                    .sort(); // Сортируем по алфавиту
+                    .sort(); 
                 
                 renderCoinList(allCoinsData);
             } catch (error) {
                 console.error('Ошибка загрузки пар:', error);
-                elCoinListContainer.innerHTML = '<div class="text-rose-400 text-sm text-center py-4">Ошибка сети. Проверьте интернет.</div>';
+                elCoinListContainer.innerHTML = '<div class="text-rose-400 text-sm text-center py-4">Ошибка сети.</div>';
             }
         }
 
-        // Отрисовка списка монет в Dropdown
         function renderCoinList(coins) {
             if (coins.length === 0) {
                 elCoinListContainer.innerHTML = '<div class="text-slate-500 text-sm text-center py-4 font-medium">Монета не найдена</div>';
                 return;
             }
-            
             const html = coins.map(coin => 
                 `<button type="button" class="w-full text-left px-4 py-2.5 text-sm font-bold text-slate-300 hover:bg-slate-700/70 hover:text-white rounded-lg transition-colors flex items-center justify-between" onclick="selectCoin('${coin}')">
                     <span>${coin}</span>
                     <span class="text-xs text-slate-500 font-normal">USDT</span>
                 </button>`
             ).join('');
-            
             elCoinListContainer.innerHTML = html;
         }
 
-        // Выбор монеты из списка
         window.selectCoin = function(symbol) {
             state.symbol = symbol;
             elSelectedCoinText.innerText = symbol;
             closeDropdown();
-            // Сбрасываем цену визуально до обновления
             elPrice.value = ''; 
             fetchCurrentPrice();
         };
 
-        // Управление Dropdown
         function openDropdown() {
             elCoinDropdown.classList.remove('hidden');
             elCoinSelectBtn.classList.add('border-blue-500');
             elCoinSelectIcon.classList.add('rotate-180');
-            // Очищаем поиск и фокусируемся
             elCoinSearch.value = '';
             renderCoinList(allCoinsData);
             setTimeout(() => elCoinSearch.focus(), 50);
@@ -285,28 +272,22 @@
 
         elCoinSelectBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (elCoinDropdown.classList.contains('hidden')) {
-                openDropdown();
-            } else {
-                closeDropdown();
-            }
+            if (elCoinDropdown.classList.contains('hidden')) openDropdown();
+            else closeDropdown();
         });
 
-        // Поиск в Dropdown
         elCoinSearch.addEventListener('input', (e) => {
             const term = e.target.value.toUpperCase();
             const filtered = allCoinsData.filter(c => c.includes(term));
             renderCoinList(filtered);
         });
 
-        // Закрытие при клике вне
         document.addEventListener('click', (e) => {
             if (!elCoinDropdown.contains(e.target) && !elCoinSelectBtn.contains(e.target)) {
                 closeDropdown();
             }
         });
 
-        // Получение актуальной цены
         async function fetchCurrentPrice() {
             if (!state.symbol) return;
             const symbol = state.symbol + 'USDT';
@@ -318,7 +299,6 @@
                 
                 const currentMarketPrice = parseFloat(data.price);
                 
-                // Если пользователь не редактирует инпут ручками в данный момент
                 if (document.activeElement !== elPrice) {
                     elPrice.value = currentMarketPrice;
                 }
@@ -330,24 +310,18 @@
             }
         }
 
-        // Автообновление
         function startPriceUpdates() {
-            fetchCurrentPrice(); // первый вызов
+            fetchCurrentPrice(); 
             if (priceInterval) clearInterval(priceInterval);
-            // Обновляем раз в 20 секунд
-            priceInterval = setInterval(fetchCurrentPrice, 20000);
+            priceInterval = setInterval(fetchCurrentPrice, 20000); // 20 сек
         }
 
-        // Форматирование цены (убираем лишние нули)
         function formatPrice(num) {
             if (!num || isNaN(num)) return '0';
-            // Используем parseFloat с toFixed(8) чтобы отсечь лишние десятичные и удалить незначащие нули в конце
             return parseFloat(num.toFixed(8)).toString();
         }
 
-        // Генерация текста сигнала и расчет математики
         function generateSignal() {
-            // Математика (без учета плеча, как просили в примере: 0.33 + 40% = 0.462)
             const tpDecimal = state.tpPercent / 100;
             const slDecimal = state.slPercent / 100;
             
@@ -362,7 +336,6 @@
                 slPrice = state.price * (1 + slDecimal);
             }
 
-            // Формируем красивый шаблон
             const e = state.useEmojis;
             const dirEmoji = e ? (state.direction === 'LONG' ? '📈 ' : '📉 ') : '';
             const levEmoji = e ? '🚀 ' : '';
@@ -371,6 +344,7 @@
             const tpEmoji = e ? '✅ ' : '';
             const slEmoji = e ? '🛑 ' : '';
             
+            // Шаблон с правильным порядком на английском
             const template = `${state.symbol}/USDT
 ${levEmoji}Leverage: ${state.leverage}x
 ${depEmoji}Deposit: ${state.deposit}%
@@ -380,24 +354,26 @@ ${slEmoji}SL: ${formatPrice(slPrice)}
 ${dirEmoji}${state.direction}`;
 
             elResultText.value = template;
+            
+            // Меняем цвет текста результата в зависимости от направления для красоты
+            if (state.direction === 'LONG') {
+                elResultText.className = "w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-emerald-400 focus:outline-none font-mono text-sm resize-none shadow-inner leading-relaxed";
+            } else {
+                elResultText.className = "w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-rose-400 focus:outline-none font-mono text-sm resize-none shadow-inner leading-relaxed";
+            }
         }
 
-        // --- Обработчики событий ---
-
-        // Ручной ввод цены
         elPrice.addEventListener('input', (e) => {
             state.price = parseFloat(e.target.value) || 0;
             generateSignal();
         });
 
-        // Плечо
         elLeverage.addEventListener('input', (e) => {
             state.leverage = parseInt(e.target.value) || 25;
             generateSignal();
         });
 
-        // Синхронизация депозита (Инпут <-> Ползунок)
-        function updateDeposit(val) {
+        window.updateDeposit = function(val) {
             let num = parseInt(val) || 1;
             if (num < 1) num = 1;
             if (num > 100) num = 100;
@@ -410,14 +386,11 @@ ${dirEmoji}${state.direction}`;
         elDepositNum.addEventListener('input', (e) => updateDeposit(e.target.value));
         elDepositSlider.addEventListener('input', (e) => updateDeposit(e.target.value));
 
-        // Кнопки TP
         elTpBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                // Сброс стилей у всех кнопок
                 elTpBtns.forEach(b => {
                     b.className = 'tp-btn py-2 rounded-lg border border-slate-600 font-semibold text-sm transition-all text-slate-300 hover:border-emerald-500 hover:text-emerald-400 bg-slate-800';
                 });
-                // Активный стиль для нажатой
                 const target = e.target;
                 target.className = 'tp-btn py-2 rounded-lg border border-emerald-500 font-bold text-sm transition-all text-white bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
                 
@@ -426,22 +399,43 @@ ${dirEmoji}${state.direction}`;
             });
         });
 
-        // Переключатель смайликов
+        // НОВЫЙ КОД: Рабочие кнопки LONG / SHORT
+        elDirBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget;
+                const dir = target.dataset.dir;
+                state.direction = dir;
+
+                // Сбрасываем стили обеих кнопок в неактивное состояние
+                const baseClassLong = 'dir-btn py-3 rounded-xl border border-slate-700 font-bold text-lg transition-all text-slate-400 bg-slate-900 hover:border-emerald-500 hover:text-emerald-400';
+                const baseClassShort = 'dir-btn py-3 rounded-xl border border-slate-700 font-bold text-lg transition-all text-slate-400 bg-slate-900 hover:border-rose-500 hover:text-rose-400';
+                
+                document.getElementById('btnLong').className = baseClassLong;
+                document.getElementById('btnShort').className = baseClassShort;
+
+                // Применяем активный стиль для выбранной кнопки
+                if (dir === 'LONG') {
+                    document.getElementById('btnLong').className = 'dir-btn py-3 rounded-xl border border-emerald-500 font-bold text-lg transition-all text-white bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
+                } else {
+                    document.getElementById('btnShort').className = 'dir-btn py-3 rounded-xl border border-rose-500 font-bold text-lg transition-all text-white bg-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.2)]';
+                }
+
+                generateSignal(); // Пересчитываем сигнал с новым направлением
+            });
+        });
+
         elEmojiToggle.addEventListener('change', (e) => {
             state.useEmojis = e.target.checked;
             generateSignal();
         });
 
-        // Копирование в буфер обмена
         elCopyBtn.addEventListener('click', () => {
             const textToCopy = elResultText.value;
             if (!textToCopy) return;
 
-            // Современный метод через clipboard
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(textToCopy).then(showToast);
             } else {
-                // Фолбэк для старых браузеров или iframe
                 elResultText.select();
                 try {
                     document.execCommand('copy');
@@ -453,7 +447,6 @@ ${dirEmoji}${state.direction}`;
             }
         });
 
-        // Функция показа уведомления
         function showToast() {
             elToast.classList.remove('opacity-0');
             elToast.classList.add('opacity-100');
@@ -465,7 +458,6 @@ ${dirEmoji}${state.direction}`;
 
         // Запуск
         init();
-
     </script>
 </body>
 </html>
