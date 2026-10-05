@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Генератор Сделок</title>
+    <title>Сделки PHOENIX</title>
     <!-- Подключаем Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Подключаем шрифт Inter -->
@@ -55,9 +55,14 @@
     <!-- Главный контейнер -->
     <main class="w-full max-w-md bg-slate-800 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.4)] border border-slate-700/50 p-6 relative">
         
-        <h1 class="text-2xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-            Генератор Сделок
-        </h1>
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 uppercase tracking-wide">
+                Сделки PHOENIX
+            </h1>
+            <p class="text-[11px] text-slate-500/80 font-semibold mt-1.5 tracking-widest uppercase">
+                by Tayler Derden
+            </p>
+        </div>
 
         <div class="space-y-5">
             <div class="relative z-50">
@@ -100,12 +105,12 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1.5">Плечо (x)</label>
+                    <label class="block text-sm font-medium text-slate-400 mb-1.5">Leverage (x)</label>
                     <input type="number" id="leverage" value="25" min="1" max="150"
                         class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-semibold text-center">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1.5">Депозит (%)</label>
+                    <label class="block text-sm font-medium text-slate-400 mb-1.5">Deposit (%)</label>
                     <div class="relative">
                         <input type="number" id="depositNum" value="10" min="1" max="100"
                             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-semibold text-center pr-8">
@@ -115,13 +120,13 @@
             </div>
 
             <div class="pt-2 px-1">
-                <input type="range" id="depositSlider" min="1" max="100" value="10" class="w-full">
-                <div class="flex justify-between text-xs text-slate-500 mt-2 font-medium">
-                    <span>1%</span>
-                    <span>25%</span>
-                    <span>50%</span>
-                    <span>75%</span>
-                    <span>100%</span>
+                <input type="range" id="depositSlider" min="1" max="100" value="10" class="w-full cursor-pointer">
+                <div class="flex justify-between text-xs text-slate-500 mt-2 font-medium px-1 select-none">
+                    <span class="cursor-pointer hover:text-blue-400 transition-colors py-1 -ml-1" onclick="updateDeposit(1)">1%</span>
+                    <span class="cursor-pointer hover:text-blue-400 transition-colors py-1" onclick="updateDeposit(25)">25%</span>
+                    <span class="cursor-pointer hover:text-blue-400 transition-colors py-1" onclick="updateDeposit(50)">50%</span>
+                    <span class="cursor-pointer hover:text-blue-400 transition-colors py-1" onclick="updateDeposit(75)">75%</span>
+                    <span class="cursor-pointer hover:text-blue-400 transition-colors py-1 -mr-1" onclick="updateDeposit(100)">100%</span>
                 </div>
             </div>
 
@@ -140,17 +145,25 @@
                 <label class="block text-sm font-medium text-slate-400 mb-2">Направление</label>
                 <div class="grid grid-cols-2 gap-3" id="directionButtons">
                     <button type="button" data-dir="LONG" class="dir-btn py-3 rounded-xl border border-emerald-500 font-bold text-lg transition-all text-white bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                        LONG 📈
+                        📈 LONG
                     </button>
                     <button type="button" data-dir="SHORT" class="dir-btn py-3 rounded-xl border border-slate-700 font-bold text-lg transition-all text-slate-400 bg-slate-900 hover:border-rose-500 hover:text-rose-400">
-                        SHORT 📉
+                        📉 SHORT
                     </button>
                 </div>
             </div>
 
             <div class="mt-6">
                 <label class="block text-sm font-medium text-slate-400 mb-1.5 flex justify-between items-end">
-                    <span>Готовый сигнал</span>
+                    <div class="flex items-center gap-3">
+                        <span>Готовый сигнал</span>
+                        <!-- Переключатель смайликов -->
+                        <label class="inline-flex items-center cursor-pointer" title="Включить/выключить смайлики">
+                            <input type="checkbox" id="emojiToggle" class="sr-only peer" checked>
+                            <div class="relative w-7 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                            <span class="ms-1.5 text-[10px] font-semibold tracking-wider text-slate-500 uppercase peer-checked:text-emerald-400 transition-colors">Emoji</span>
+                        </label>
+                    </div>
                     <span class="text-xs text-slate-500 font-normal">Стоп-лосс: 15%</span>
                 </label>
                 <textarea id="resultText" readonly rows="7" 
@@ -174,7 +187,8 @@
             deposit: 10,
             direction: 'LONG',
             tpPercent: 45,
-            slPercent: 15
+            slPercent: 15,
+            useEmojis: true
         };
         let priceInterval = null;
         let allCoinsData = [];
@@ -198,6 +212,7 @@
         const elResultText = document.getElementById('resultText');
         const elCopyBtn = document.getElementById('copyBtn');
         const elToast = document.getElementById('toast');
+        const elEmojiToggle = document.getElementById('emojiToggle');
 
         // Инициализация
         async function init() {
@@ -348,13 +363,21 @@
             }
 
             // Формируем красивый шаблон
-            const template = `${state.symbol} USDT
-Плечо: ${state.leverage}
-Депозит: ${state.deposit}%
-Вход: Маркет
-TP: ${formatPrice(tpPrice)}
-SL: ${formatPrice(slPrice)}
-${state.direction}`;
+            const e = state.useEmojis;
+            const dirEmoji = e ? (state.direction === 'LONG' ? '📈 ' : '📉 ') : '';
+            const levEmoji = e ? '🚀 ' : '';
+            const depEmoji = e ? '💰 ' : '';
+            const entEmoji = e ? '🎯 ' : '';
+            const tpEmoji = e ? '✅ ' : '';
+            const slEmoji = e ? '🛑 ' : '';
+            
+            const template = `${state.symbol}/USDT
+${levEmoji}Leverage: ${state.leverage}x
+${depEmoji}Deposit: ${state.deposit}%
+${entEmoji}Entry: Market
+${tpEmoji}TP: ${formatPrice(tpPrice)}
+${slEmoji}SL: ${formatPrice(slPrice)}
+${dirEmoji}${state.direction}`;
 
             elResultText.value = template;
         }
@@ -403,24 +426,10 @@ ${state.direction}`;
             });
         });
 
-        // Кнопки Направления
-        elDirBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const dir = e.currentTarget.dataset.dir;
-                state.direction = dir;
-                
-                const longBtn = document.querySelector('[data-dir="LONG"]');
-                const shortBtn = document.querySelector('[data-dir="SHORT"]');
-                
-                if (dir === 'LONG') {
-                    longBtn.className = 'dir-btn py-3 rounded-xl border border-emerald-500 font-bold text-lg transition-all text-white bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
-                    shortBtn.className = 'dir-btn py-3 rounded-xl border border-slate-700 font-bold text-lg transition-all text-slate-400 bg-slate-900 hover:border-rose-500 hover:text-rose-400';
-                } else {
-                    shortBtn.className = 'dir-btn py-3 rounded-xl border border-rose-500 font-bold text-lg transition-all text-white bg-rose-500/20 shadow-[0_0_15px_rgba(225,29,72,0.2)]';
-                    longBtn.className = 'dir-btn py-3 rounded-xl border border-slate-700 font-bold text-lg transition-all text-slate-400 bg-slate-900 hover:border-emerald-500 hover:text-emerald-400';
-                }
-                generateSignal();
-            });
+        // Переключатель смайликов
+        elEmojiToggle.addEventListener('change', (e) => {
+            state.useEmojis = e.target.checked;
+            generateSignal();
         });
 
         // Копирование в буфер обмена
